@@ -1,0 +1,10 @@
+[package]
+name = "zellij-what-time"
+version = "0.1.0"
+authors = ["pirafrank"]
+edition = "2021"
+
+[dependencies]
+zellij-tile = "=0.40.1"
+ansi_term = "0.12.1"
+chrono = "0.4.0"
