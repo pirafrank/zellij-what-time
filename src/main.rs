@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
-use std::process::Command;
+//use std::process::Command;
 use chrono::Utc;
+use tracing_subscriber::util::SubscriberInitExt;
 use zellij_tile::prelude::*;
 
 static TIMEOUT_INTERVAL: f64 = 2.0;
@@ -21,6 +22,7 @@ register_plugin!(State);
 
 impl ZellijPlugin for State {
     fn load(&mut self, configuration: BTreeMap<String, String>) {
+        init_tracing();
         self.userspace_configuration = configuration;
         self.has_permissions = false;
         // initialize last_update to 0 to force an update on the first render
@@ -45,12 +47,14 @@ impl ZellijPlugin for State {
                 // no matter what, this plugin is a status-bar plugin
                 // so it is not selectable anyways.
                 set_selectable(false);
+                set_timeout(TIMEOUT_INTERVAL);
             }
             Event::Timer(time) => {
+                tracing::debug!("Event Timer received, time: {}", time);
                 // Update timezone every minute
                 if time - self.last_update >= 4.0 {
                     self.refresh_last_update();
-                    self.output = get_datetime_to_show();
+                    //self.output = get_datetime_to_show();
                     should_render = true;
                 }
                 set_timeout(TIMEOUT_INTERVAL);
@@ -73,14 +77,6 @@ impl State {
     }
 }
 
-fn get_datetime_to_show() -> String {
-    let output = Command::new("date")
-        .arg("+%Y/%m/%d %H:%M")
-        .output()
-        .expect("Failed to execute date command");
-
-    String::from_utf8_lossy(&output.stdout).trim().to_string()
-}
 
 fn get_current_time() -> f64 {
     // when compiling to WebAssembly, code runs in a sandboxed environment.
@@ -91,4 +87,21 @@ fn get_current_time() -> f64 {
     //     .unwrap()
     //     .as_secs_f64()
     Utc::now().timestamp() as f64
+}
+
+fn init_tracing() {
+    use std::fs::File;
+    use std::sync::Arc;
+    use tracing_subscriber::layer::SubscriberExt;
+
+    let file = File::create(".zellij_plugin.log");
+    let file = match file {
+        Ok(file) => file,
+        Err(error) => panic!("Error: {:?}", error),
+    };
+    let debug_log = tracing_subscriber::fmt::layer().with_writer(Arc::new(file));
+
+    tracing_subscriber::registry().with(debug_log).init();
+
+    tracing::info!("tracing initialized");
 }
