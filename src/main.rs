@@ -1,5 +1,5 @@
 use std::collections::BTreeMap;
-//use std::process::Command;
+use std::process::Command;
 use chrono::Utc;
 use tracing_subscriber::util::SubscriberInitExt;
 use zellij_tile::prelude::*;
@@ -49,13 +49,18 @@ impl ZellijPlugin for State {
                 set_selectable(false);
                 set_timeout(TIMEOUT_INTERVAL);
             }
-            Event::Timer(time) => {
-                tracing::debug!("Event Timer received, time: {}", time);
+            Event::Timer(_time) => {
+                tracing::debug!("Event Timer received, time: {}", _time);
+                // now
+                let now = Utc::now().timestamp() as f64;
                 // Update timezone every minute
-                if time - self.last_update >= 4.0 {
+                if now - self.last_update >= 4.0 {
+                    tracing::debug!("Time to update");
                     self.refresh_last_update();
-                    //self.output = get_datetime_to_show();
+                    self.output = get_datetime_to_show();
                     should_render = true;
+                } else {
+                  tracing::debug!("Too soon, won't update!");
                 }
                 set_timeout(TIMEOUT_INTERVAL);
             }
@@ -77,6 +82,13 @@ impl State {
     }
 }
 
+fn get_datetime_to_show() -> String {
+    let output = Command::new("date")
+        .arg("+%Y/%m/%d %H:%M:%S")
+        .output()
+        .expect("Failed to execute date command");
+    String::from_utf8_lossy(&output.stdout).trim().to_string()
+}
 
 fn get_current_time() -> f64 {
     // when compiling to WebAssembly, code runs in a sandboxed environment.
