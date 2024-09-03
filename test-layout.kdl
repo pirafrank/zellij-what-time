@@ -1,0 +1,44 @@
+layout {
+
+    default_tab_template {
+        pane size=2 split_direction="vertical" {
+            pane size="65%" borderless=true {
+                plugin location="zellij:tab-bar"
+            }
+            pane size="35%" borderless=true {
+                plugin location="file:target/wasm32-wasi/debug/zellij-what-time.wasm"
+            }
+        }
+        children
+        pane size=1 borderless=true {
+            plugin location="file:target/wasm32-wasi/debug/zellij-what-time.wasm"
+        }
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    // new_tab_template doesn't automatically inherit from the default_tab_template
+    new_tab_template {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    tab name="Tab 1" focus=true {
+        pane
+    }
+
+    tab name="Tab 2" {
+        pane
+    }
+
+    tab name="Tab 3" {
+        pane
+    }
+}
+
