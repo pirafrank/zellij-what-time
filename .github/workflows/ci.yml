@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v4
+
+      - name: Extract toolchain channel
+        id: extract_toolchain
+        run: |
+          TOOLCHAIN_CHANNEL=$(grep 'channel' rust-toolchain.toml | cut -d '"' -f 2)
+          echo "Toolchain channel: $TOOLCHAIN_CHANNEL"
+          echo "TOOLCHAIN_CHANNEL=$TOOLCHAIN_CHANNEL" >> $GITHUB_OUTPUT
+          TARGET_ARCH=$(grep 'target' rust-toolchain.toml | cut -d '"' -f 2)
+          echo "Target arch: $TARGET_ARCH"
+          echo "TARGET_ARCH=$TARGET_ARCH" >> $GITHUB_OUTPUT
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: ${{ steps.extract_toolchain.outputs.TOOLCHAIN_CHANNEL }}
+          target: ${{ steps.extract_toolchain.outputs.TARGET_ARCH }}
+
+      - name: Build project
+        run: cargo build
