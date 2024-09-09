@@ -1,6 +1,5 @@
 use std::collections::BTreeMap;
 use chrono::Utc;
-use tracing_subscriber::util::SubscriberInitExt;
 use zellij_tile::prelude::*;
 
 static TIMEOUT_INTERVAL: f64 = 2.0;
@@ -22,7 +21,7 @@ register_plugin!(State);
 
 impl ZellijPlugin for State {
     fn load(&mut self, configuration: BTreeMap<String, String>) {
-        init_tracing();
+        init_tracing("debug");
         self.user_config = configuration;
         self.has_permissions = false;
         // initialize last_update to 0 to force an update on the first render
@@ -42,7 +41,10 @@ impl ZellijPlugin for State {
         match event {
             Event::PermissionRequestResult(result ) => {
                 if result == PermissionStatus::Granted {
-                  self.has_permissions = true;
+                    tracing::debug!("Permission granted!");
+                    self.has_permissions = true;
+                } else {
+                    tracing::error!("Permission denied. PermissionStatus: {:?}", result);
                 }
                 // no matter what, this plugin is a status-bar plugin
                 // so it is not selectable anyway.
@@ -115,19 +117,28 @@ fn get_current_timestamp() -> f64 {
     Utc::now().timestamp() as f64
 }
 
-fn init_tracing() {
+fn init_tracing(level: &str) {
     use std::fs::File;
     use std::sync::Arc;
     use tracing_subscriber::layer::SubscriberExt;
+    use tracing_subscriber::fmt;
+    use tracing_subscriber::filter;
+
+    let filter = filter::EnvFilter::new(format!("{}={}", PLUGIN_NAME, level))
+        .add_directive(level.parse().unwrap());
 
     let file = File::create(format!(".{}.log", PLUGIN_NAME));
     let file = match file {
         Ok(file) => file,
         Err(error) => panic!("Error: {:?}", error),
     };
-    let debug_log = tracing_subscriber::fmt::layer().with_writer(Arc::new(file));
+    let debug_log = fmt::layer().with_writer(Arc::new(file));
+    let subscriber = tracing_subscriber::registry()
+        .with(filter)
+        .with(debug_log);
 
-    tracing_subscriber::registry().with(debug_log).init();
+    tracing::subscriber::set_global_default(subscriber)
+        .expect("Failed to set global default subscriber");
 
-    tracing::info!("Tracing initialized");
+    tracing::info!("Logging initialized");
 }
