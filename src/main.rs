@@ -1,6 +1,12 @@
+mod date_time;
+
 use std::collections::BTreeMap;
 use chrono::Utc;
 use zellij_tile::prelude::*;
+
+fn format_terminal_style(text: &str, fg_color: &str, bg_color: &str) -> String {
+    format!("\x1b[{};{}m{}\x1b[0m", fg_color, bg_color, text)
+}
 
 static TIMEOUT_INTERVAL: f64 = 2.0;
 static PLUGIN_NAME: &str = "zellij-what-time";
@@ -11,6 +17,7 @@ struct State {
     last_update: f64,
     user_config: BTreeMap<String, String>,
     has_permissions: bool,
+    separator: String,
 }
 
 register_plugin!(State);
@@ -21,9 +28,10 @@ register_plugin!(State);
 
 impl ZellijPlugin for State {
     fn load(&mut self, configuration: BTreeMap<String, String>) {
-        init_tracing("debug");
         self.user_config = configuration;
+        init_tracing("debug");
         self.has_permissions = false;
+        self.separator =  "  ".to_string();
         // initialize last_update to 0 to force an update on the first render
         self.last_update = 0.0;
         request_permission(&[
@@ -69,9 +77,10 @@ impl ZellijPlugin for State {
             Event::RunCommandResult(exit_code, stdout, stderr, _ctx) => {
                 tracing::debug!("Got a RunCommandResult event!");
                 if exit_code.unwrap() == 0 {
-                  let output = String::from_utf8_lossy(&stdout).trim().to_string();
-                  tracing::debug!("RunCommandResult: {:?}", output);
-                  self.output = output;
+                    let output = String::from_utf8_lossy(&stdout).trim().to_string();
+                    tracing::debug!("RunCommandResult: {:?}", output);
+                    let date_time = date_time::DateTime::parse(&output);
+                    self.output = date_time.render(&self.separator);
                 } else {
                   let error = String::from_utf8_lossy(&stderr).trim().to_string();
                   tracing::error!("RunCommandResult: {:?}", error);
@@ -86,17 +95,20 @@ impl ZellijPlugin for State {
     }
 
     fn render(&mut self, _rows: usize, cols: usize) {
-        let right_padding_size = 1;
-        let right_padding = " ".repeat(right_padding_size);
-        let size = self.output.len() + right_padding_size;
+        let s: &usize = &self.output.chars()
+            .map(|c| if c.is_ascii() { 1 } else { 2 })
+            .sum::<usize>();
+        let size: usize = *s as usize;
         // because of https://bit.ly/3MYjOlv
-        let padding: String = if cols as isize - size as isize > 0 {
+        let padding: String = if cols - size > 0 {
             " ".repeat(cols - size)
         } else {
             String::new()
         };
         // TODO: support only right align for now
-        let to_render: String = format!("{}{}{}", padding, self.output, right_padding);
+        let styled_output = format_terminal_style(&self.output, "30", "37");
+        let to_render: String = format!("{}{}", padding, styled_output);
+
         tracing::debug!("Render: output: {}", to_render);
         print!("{}", to_render);
     }
@@ -108,7 +120,8 @@ impl State {
     }
     fn run_datetime_cmd(&mut self) {
         tracing::debug!("Fired run_datetime_cmd");
-        let cmd_w_args = ["date", "+%Y/%m/%d %H:%M:%S"];
+        let date_arg = format!("{}{}{}", "+%Y.%m.%d %a", date_time::DATE_ARG_SEP,"%H:%M:%S");
+        let cmd_w_args = ["date", date_arg.as_str()];
         zellij_tile::shim::run_command(&cmd_w_args, self.user_config.clone());
     }
 }
