@@ -27,6 +27,90 @@ curl -L "https://github.com/pirafrank/zellij-what-time/releases/latest/download/
   -o ~/.config/zellij/plugins/zellij-what-time.wasm
 ```
 
+## Configuration
+
+### Defaults
+
+- `date_format`: The format of the date. Default: `%Y.%m.%d %a`
+- `time_format`: The format of the time. Default: `%H:%M`
+- `separator`: The string that separates date and time. Default: [U+3008](https://www.compart.com/en/unicode/U+3008).
+- `interval_update`: The interval (in seconds) after which the time is updated. Default: `60.0`
+- `log_level`: The log level. Off by default. On by setting a value level. Check the [Logging](#logging) section for supported values.
+
+### Configuration examples
+
+Running with defaults in the tab bar:
+
+```kdl
+    pane size=2 split_direction="vertical" {
+        pane size="70%" borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane size="30%" borderless=true {
+            plugin location="file:~/.config/zellij/plugins/zellij-what-time.wasm"
+        }
+    }
+```
+
+Disable date output:
+
+```kdl
+    pane size=2 split_direction="vertical" {
+        pane size="70%" borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane size="30%" borderless=true {
+            plugin location="file:~/.config/zellij/plugins/zellij-what-time.wasm" {
+                date_format ""
+            }
+        }
+    }
+```
+
+Show seconds by updating each second (date format left to default):
+
+```kdl
+    pane size=2 split_direction="vertical" {
+        pane size="70%" borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane size="30%" borderless=true {
+            plugin location="file:~/.config/zellij/plugins/zellij-what-time.wasm" {
+                time_format "%H:%M:%S"
+                interval_update "1.0"
+            }
+        }
+    }
+```
+
+Show date and time with custom formats and enable logging at debug level:
+
+```kdl
+    pane size=2 split_direction="vertical" {
+        pane size="70%" borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        pane size="30%" borderless=true {
+            plugin location="file:~/.config/zellij/plugins/zellij-what-time.wasm" {
+                date_format "%Y/%m/%d %a"
+                time_format "%H:%M:%S"
+                log_level "debug"
+                interval_update "1.0"
+            }
+        }
+    }
+```
+
+## Logging
+
+Logs are off by default. If something goes wrong, you can enable logs for quicker debug.
+
+Set the `log_level` configuration to one of the following values: `trace`, `debug`, `info`, `warn`, `error`. You need to relaunch Zellij after changing the plugin configuration.
+
+Logs are written to `~/.config/zellij/plugins/.zellij-what-time.log`.
+
+ANSI escape sequences are used to colorize the logs, so it's better to `tail -f` the log file than opening it with an editor.
+
 ## Contributing
 
 If you run into a glitch or if you want to suggest an idea, please [open an issue](https://github.com/pirafrank/zellij-what-time/issues/new).

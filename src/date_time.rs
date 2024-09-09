@@ -1,3 +1,5 @@
+use crate::configuration::Configuration;
+
 pub static DATE_ARG_SEP: &str = "X";
 
 pub struct DateTime {
@@ -26,7 +28,16 @@ impl DateTime {
         time.push_str(iter.next().unwrap());
         Self::new(date, time)
     }
-    pub fn render(&self, sep: &String) -> String {
-        format!("{}{}{}{}", sep, self.date, sep, self.time)
+    pub fn render(&self, config: &Configuration) -> String {
+        let mut output = String::new();
+        if config.get_has_date() {
+            output.push_str(&config.get_separator());
+            output.push_str(&self.date);
+        }
+        if config.get_has_time() {
+            output.push_str(&config.get_separator());
+            output.push_str(&self.time);
+        }
+        output
     }
 }
