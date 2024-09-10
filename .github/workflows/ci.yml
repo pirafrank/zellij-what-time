@@ -4,9 +4,27 @@ on:
   push:
     branches:
       - main
+    paths:
+      - .cargo/**
+      - src/**
+      - Cargo.lock
+      - Cargo.toml
+      - build.rs
+      - justfile
+      - rust-toolchain.toml
+      - .github/workflows/ci.yml
   pull_request:
     branches:
       - main
+    paths:
+      - .cargo/**
+      - src/**
+      - Cargo.lock
+      - Cargo.toml
+      - build.rs
+      - justfile
+      - rust-toolchain.toml
+      - .github/workflows/ci.yml
 
 jobs:
   ci:

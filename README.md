@@ -1,8 +1,13 @@
 # 🕔 zellij-what-time
 
 [![CI](https://github.com/pirafrank/zellij-what-time/actions/workflows/ci.yml/badge.svg)](https://github.com/pirafrank/zellij-what-time/actions/workflows/ci.yml)
+[![Release](https://github.com/pirafrank/zellij-what-time/actions/workflows/release.yml/badge.svg)](https://github.com/pirafrank/zellij-what-time/actions/workflows/release.yml)
 
 zellij-what-time is a Zellij plugin to show the host system date and/or time in the status bar. Zero-config, but customizable. Inspired by zellij-datetime.
+
+![Screenshot](./.readme/screen1.png)
+
+(zellij-what-time is in the top right corner)
 
 ## Why?
 
@@ -26,6 +31,10 @@ mkdir -p ~/.config/zellij/plugins/
 curl -L "https://github.com/pirafrank/zellij-what-time/releases/latest/download/zellij-what-time.wasm" \
   -o ~/.config/zellij/plugins/zellij-what-time.wasm
 ```
+
+Releases are automatically published upon pushes to the `release` branch. Build and install from `main` to get the bleeding edge.
+
+To update, download the new version and replace the existing file.
 
 ## Configuration
 
