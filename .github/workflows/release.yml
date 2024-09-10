@@ -35,7 +35,7 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          target: wasm32-wasi
+          target: wasm32-wasip1
 
       - name: Setup just runner
         uses: extractions/setup-just@v2
@@ -49,15 +49,15 @@ jobs:
 
       - name: Generate SHA256 checksum
         run: |
-          cd ./target/wasm32-wasi/release/
+          cd ./target/wasm32-wasip1/release/
           sha256sum ${{ steps.name.outputs.name }}.wasm > ${{ steps.name.outputs.name }}.wasm.sha256
 
       - name: Create release and upload assets
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ./target/wasm32-wasi/release/${{ steps.name.outputs.name }}.wasm
-            ./target/wasm32-wasi/release/${{ steps.name.outputs.name }}.wasm.sha256
+            ./target/wasm32-wasip1/release/${{ steps.name.outputs.name }}.wasm
+            ./target/wasm32-wasip1/release/${{ steps.name.outputs.name }}.wasm.sha256
           name: ${{ steps.version.outputs.version }}
           tag_name: ${{ steps.version.outputs.version }}
           generate_release_notes: true

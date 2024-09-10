@@ -6,7 +6,7 @@ layout {
                 plugin location="zellij:tab-bar"
             }
             pane size="30%" borderless=true {
-                plugin location="file:target/wasm32-wasi/debug/zellij-what-time.wasm" {
+                plugin location="file:target/wasm32-wasip1/debug/zellij-what-time.wasm" {
                     date_format "%Y/%m/%d %a"
                     time_format "%H:%M:%S"
                     log_level "debug"
@@ -16,7 +16,7 @@ layout {
         }
         children
         pane size=1 borderless=true {
-            plugin location="file:target/wasm32-wasi/debug/zellij-what-time.wasm"
+            plugin location="file:target/wasm32-wasip1/debug/zellij-what-time.wasm"
         }
         pane size=2 borderless=true {
             plugin location="zellij:status-bar"

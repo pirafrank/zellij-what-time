@@ -132,7 +132,7 @@ Requirements:
 - cargo
 - [watchexec](https://github.com/watchexec/watchexec)
 - zellij (ofc!)
-- wasm32-wasi target (`rustup target add wasm32-wasi`)
+- wasm32-wasip1 target (`rustup target add wasm32-wasip1`)
 - neovim or any other terminal editor
 
 Then run:
