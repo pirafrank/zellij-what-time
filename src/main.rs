@@ -148,6 +148,7 @@ impl State {
     fn run_datetime_cmd(&mut self) {
         tracing::debug!("Fired run_datetime_cmd");
         let date_cmd: [&str; 2] = [DATE_CMD, &self.date_cmd_args];
+        tracing::debug!("Running command: {:?}", date_cmd);
         zellij_tile::shim::run_command(&date_cmd, BTreeMap::new());
     }
 }

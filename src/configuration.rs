@@ -60,24 +60,28 @@ impl Configuration {
     pub fn load_user_config(&mut self, configuration: &BTreeMap<String, String>) {
         if let Some(date_format) = configuration.get("date_format") {
             self.has_date = !date_format.is_empty();
+            // empty date_format means disabling date
             self.date_format = if self.has_date {
                 date_format.to_string()
             } else {
                 DEFAULT_DATE_FORMAT.to_string()
             };
         } else {
-            self.has_date = false;
+            // no date_format choice, means using default
+            self.has_date = true;
             self.date_format = DEFAULT_DATE_FORMAT.to_string();
         }
 
         if let Some(time_format) = configuration.get("time_format") {
             self.has_time = !time_format.is_empty();
+            // empty time_format means disabling time
             self.time_format = if self.has_time {
                 time_format.to_string()
             } else {
                 DEFAULT_TIME_FORMAT.to_string()
             };
         } else {
+            // no time_format choice, means using default
             self.has_time = true;
             self.time_format = DEFAULT_TIME_FORMAT.to_string();
         }
@@ -102,6 +106,7 @@ impl Configuration {
                 DEFAULT_LOG_LEVEL.to_string()
             };
         } else {
+            // empty log_level means no logging
             self.log_enabled = false;
             self.log_level = DEFAULT_LOG_LEVEL.to_string();
         }
