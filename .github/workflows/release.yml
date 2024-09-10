@@ -25,11 +25,13 @@ jobs:
       - name: Get app version
         id: version
         run: |
-          COMMIT=$(git rev-parse --short HEAD)
-          APP_VERSION=$(grep -m1 -oP '(?<=version = ")[^"]*' Cargo.toml)
-          APP_VERSION_OUTPUT="${APP_VERSION}-${COMMIT}"
+          APP_VERSION_OUTPUT=$(grep -m1 -oP '(?<=version = ")[^"]*' Cargo.toml)
           echo "version=$APP_VERSION_OUTPUT"
           echo "version=$APP_VERSION_OUTPUT" >> $GITHUB_OUTPUT
+
+      - name: Check if release already exists
+        run: |
+          curl -sL https://api.github.com/repos/${{ github.repository }}/releases | jq -r '.[] | .tag_name' | grep -q ${{ steps.version.outputs.version }} && echo "Release already exists" && exit 1 || echo "Release does not exist"
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -39,10 +41,6 @@ jobs:
 
       - name: Setup just runner
         uses: extractions/setup-just@v2
-
-      - name: Set version in Cargo.toml
-        run: |
-          sed -i "s/^version = .*/version = \"${{ steps.version.outputs.version }}\"/" Cargo.toml
 
       - name: Build release
         run: just release
