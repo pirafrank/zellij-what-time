@@ -1,0 +1,53 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/rust
+{
+    "name": "Rust",
+    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    // info about this base image: https://github.com/devcontainers/images/tree/main/src/rust
+    "image": "mcr.microsoft.com/devcontainers/rust:latest",
+    // Features to add to the dev container. More info: https://containers.dev/features.
+    "features": {
+      "ghcr.io/devcontainers/features/sshd:1": {
+        "version": "latest"
+      },
+      "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    // Configure tool-specific properties.
+    "customizations": {
+      // Configure properties specific to VS Code.
+      "vscode": {
+        "settings": {
+          "terminal.integrated.defaultProfile.linux": "zsh",
+          "terminal.integrated.defaultProfile.osx": "zsh",
+          "terminal.integrated.defaultProfile.windows": "PowerShell"
+        },
+        "extensions": [
+          // rust-analyzer
+          "rust-lang.rust-analyzer",
+          // editor styling
+          "vscode-icons-team.vscode-icons", // better vs code icons
+          "will-stone.plastic", // my fav theme
+          // ide extensions
+          "EditorConfig.EditorConfig", // editorconfig support
+          "codezombiech.gitignore", // gitignore assistant
+          "redhat.vscode-yaml", // yaml support
+          "wayou.vscode-todo-highlight", // to-do highlighting
+          "mrmlnc.vscode-duplicate", // option to duplicate files/folders
+          "tamasfe.even-better-toml", // toml support
+          // gh related
+          "GitHub.vscode-pull-request-github", // gh pr support
+          "github.vscode-github-actions", // gh actions support
+          "GitHub.copilot", // gh copilot
+          "GitHub.copilot-chat" // gh copilot chat
+        ]
+      }
+    },
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+    // Use 'postCreateCommand' to run commands after the container is created.
+    // "postCreateCommand": "rustc --version",
+    // NOTE: gh cli is installed by the 'features' property above.
+    "postCreateCommand": "gh extension install github/gh-copilot; cargo install git-cliff cargo-edit cargo-msrv cargo-deny cargo-get"
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    // "remoteUser": "root"
+  }
